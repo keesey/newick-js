@@ -42,8 +42,7 @@ const testNewick = ({
     expectedVertexCount,
     expectedWritten,
     string,
-}) =>
-{
+}) => {
     if (!expectedArcCount) {
         expectedArcCount = expectedVertexCount - 1;
     }
@@ -86,16 +85,14 @@ const testNewick = ({
         it("should include the root in the vertices", () => {
             expect(result.graph[0].has(result.root)).to.be.true;
         });
-        if (expectedVertexCount === 1)
-        {
+        if (expectedVertexCount === 1) {
             it("should have a single vertex (the root)", () => {
                 const expectedVertices = new Set();
                 expectedVertices.add(result.root);
                 expectSetsEqual(result.graph[0], expectedVertices);
             });
         }
-        else
-        {
+        else {
             it("should have all of the vertices from the arcs, and only those vertices", () => {
                 const expectedVertices = new Set();
                 for (let arc of result.graph[1]) {
@@ -113,8 +110,7 @@ const testNewick = ({
             expect(write(parse(write(result.graph)).graph)).to.equal(expectedWritten);
         });
     });
-    if (/;$/.test(string))
-    {
+    if (/;$/.test(string)) {
         testNewick({
             expectedArcCount,
             expectedRootLabel,
@@ -124,10 +120,8 @@ const testNewick = ({
         });
     }
 };
-describe("The Newick string parser", () =>
-{
-    describe("when using an example from the specification", () =>
-    {
+describe("The Newick string parser", () => {
+    describe("when using an example from the specification", () => {
         testNewick({
             expectedVertexCount: 14,
             expectedWritten: "((((cat:47.14069,monkey:100.8593):20.59201,weasel:18.87953):2.0946,(sea_lion:11.997,seal:12.003):7.52973):3.87382,(bear:6.80041,raccoon:19.19959):0.846,dog:25.46154);",
