@@ -1,0 +1,35 @@
+{
+	"author": "T. Michael Keesey <keesey@gmail.com>",
+	"bugs": {
+		"url": "https://github.com/keesey/newick-js/issues"
+	},
+	"description": "TypeScript/JavaScript parsing for Newick strings.",
+	"devDependencies": {
+		"chai": "^4.1.2",
+		"mocha": "^5.0.5",
+		"typescript": "^2.7.2"
+	},
+	"homepage": "https://github.com/keesey/newick-js#readme",
+	"keywords": [
+		"cladogram",
+		"graph",
+		"javascript",
+		"newick",
+		"parser",
+		"phylogenetic",
+		"phylogeny",
+		"tree",
+		"typescript"
+	],
+	"license": "MIT",
+	"main": "dist/index.js",
+	"name": "newick-js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/keesey/newick-js.git"
+	},
+	"scripts": {
+		"build": "tsc"
+	},
+	"version": "0.0.1"
+}
