@@ -152,6 +152,14 @@ describe("The Newick string parser", () => {
             string: "(Alpha,Beta,Gamma,Delta,,Epsilon,,,);",
         });
     });
+    describe("when using the example from the `README`", () => {
+        testNewick({
+            expectedRootLabel: "Hominidae",
+            expectedVertexCount: 7,
+            expectedWritten: "(((Homo:6.65,Pan:6.65):2.41,Gorilla:9.06)Homininae:6.7,Pongo:15.76)Hominidae;",
+            string: "(Pongo:15.76,(Gorilla:9.06,(Pan:6.65,Homo:6.65):2.41)Homininae:6.70)Hominidae;",
+        });
+    });
     describe("when using trees with with excessive whitespace", () => {
         testNewick({
             expectedVertexCount: 7,

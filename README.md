@@ -24,58 +24,50 @@ yarn add newick-js
 
 ### Javascript
 ```javascript
-const { parse } = require("newick-js");
+const { parse, write } = require("newick-js");
 const result = parse("(Pongo:15.76,(Gorilla:9.06,(Pan:6.65,Homo:6.65):2.41)Homininae:6.70)Hominidae;");
 const root = result.root;
 console.log(`Root: ${result.root.label}`);
 const vertices = result.graph[0];
 console.log(`Number of Vertices: ${vertices.size}`);
 const arcs = result.graph[1];
-const arcList = Array.from(arcs.values());
-console.log(arcList.map(arc => `${arc[0].label || "[unnamed]"} => ${arc[1].label || "[unnamed]"} (weight: ${arc[2]})`).join("\n"));
+console.log(`Number of Arcs: ${arcs.size}`);
+console.log(write(result.graph));
 ```
 
 Output:
 ```sh
 > Root: Hominidae
 > Number of Vertices: 7
-> [unnamed] => Homo (weight: 6.65)
-  [unnamed] => Pan (weight: 6.65)
-  Homininae => [unnamed] (weight: 2.41)
-  Homininae => Gorilla (weight: 9.06)
-  Hominidae => Homininae (weight: 6.7)
-  Hominidae => Pongo (weight: 15.76)
+> Number of Arcs: 6
+> ((Homo:6.65,Pan:6.65):2.41,Gorilla:9.06)Homininae:6.7,(Pongo:15.76)Hominidae;
 ```
 
 ### TypeScript
 ```javascript
-import { parse } from "newick-js";
+import { parse, write } from "newick-js";
 const result = parse("(Pongo:15.76,(Gorilla:9.06,(Pan:6.65,Homo:6.65):2.41)Homininae:6.70)Hominidae;");
 const root = result.root;
 console.log(`Root: ${result.root.label}`);
 const vertices = result.graph[0];
 console.log(`Number of Vertices: ${vertices.size}`);
 const arcs = result.graph[1];
-const arcList = Array.from(arcs.values());
-console.log(arcList.map(arc => `${arc[0].label || "[unnamed]"} => ${arc[1].label || "[unnamed]"} (weight: ${arc[2]})`).join("\n"));
+console.log(`Number of Arcs: ${arcs.size}`);
+console.log(write(result.graph));
 ```
 
 Output:
 ```sh
 > Root: Hominidae
 > Number of Vertices: 7
-> [unnamed] => Homo (weight: 6.65)
-  [unnamed] => Pan (weight: 6.65)
-  Homininae => [unnamed] (weight: 2.41)
-  Homininae => Gorilla (weight: 9.06)
-  Hominidae => Homininae (weight: 6.7)
-  Hominidae => Pongo (weight: 15.76)
+> Number of Arcs: 6
+> ((Homo:6.65,Pan:6.65):2.41,Gorilla:9.06)Homininae:6.7,(Pongo:15.76)Hominidae;
 ```
 
 ### AMD
 ```javascript
 define(function(require, exports, module) {
-  var parse = require('newickJS').parse;
+  var newick = require('newick-js');
 });
 ```
 
