@@ -8,3 +8,4 @@ export interface Vertex {
     label?: string;
 }
 export declare function parse(s: string): ParseResult;
+export declare function write(graph: Graph): string;

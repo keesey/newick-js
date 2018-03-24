@@ -29,7 +29,8 @@
 		"url": "git+https://github.com/keesey/newick-js.git"
 	},
 	"scripts": {
-		"build": "tsc"
+		"build": "tsc",
+		"test": "mocha --reporter spec"
 	},
 	"version": "0.0.1"
 }

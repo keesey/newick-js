@@ -4,7 +4,9 @@ function parse(s) {
     if (typeof s !== "string") {
         throw new Error(`Not a string: ${s}`);
     }
-    if (s.length < 2) {
+    s = s.trim();
+    const minLength = /;$/.test(s) ? 2 : 1;
+    if (s.length < minLength) {
         throw new Error(`Not long enough to be a Newick string: "${s}".`);
     }
     const graph = [new Set(), new Set()];
@@ -15,6 +17,10 @@ function parse(s) {
     };
 }
 exports.parse = parse;
+function write(graph) {
+    return `${writeVertex(findRoot(graph), NaN, graph, new Set())};`;
+}
+exports.write = write;
 class CharBuffer {
     constructor(string = "") {
         this.string = string;
@@ -36,6 +42,25 @@ class CharBuffer {
         }
         return this.string.charAt(this.pos++);
     }
+}
+function findRoot(graph) {
+    const candidates = new Set(graph[0]);
+    graph[1].forEach(arc => candidates.delete(arc[1]));
+    if (candidates.size > 1) {
+        throw new Error("Cannot determine root.");
+    }
+    for (let member of candidates) {
+        return member;
+    }
+    throw new Error("No root element found.");
+}
+function findVertexWithLabel(label, vertices) {
+    for (let vertex of vertices) {
+        if (vertex.label === label) {
+            return vertex;
+        }
+    }
+    return null;
 }
 function readVertex(buffer, graph) {
     let token;
@@ -66,7 +91,9 @@ function readVertex(buffer, graph) {
     else {
         buffer.back();
     }
-    const vertex = readVertexLabel(buffer);
+    const vertex = readVertexLabel(buffer, graph[0]);
+    if (!children.length) {
+    }
     graph[0].add(vertex);
     while (children.length) {
         graph[1].add([
@@ -77,7 +104,7 @@ function readVertex(buffer, graph) {
     }
     return vertex;
 }
-function readVertexLabel(buffer) {
+function readVertexLabel(buffer, vertices) {
     let label = "";
     let quoted = false;
     while (!buffer.atEnd()) {
@@ -109,7 +136,7 @@ function readVertexLabel(buffer) {
     if (label.length === 0) {
         return {};
     }
-    return { label };
+    return findVertexWithLabel(label, vertices) || { label };
 }
 function readWeight(buffer) {
     let s = '';
@@ -122,4 +149,31 @@ function readWeight(buffer) {
         s += token;
     }
     return parseFloat(s);
+}
+function writeVertex(vertex, weight, graph, visited) {
+    const parts = new Array(1);
+    parts[0] = vertex.label || "";
+    if (!isNaN(weight)) {
+        parts.push(weight);
+    }
+    const vertexString = parts.join(":");
+    if (vertex.label) {
+        if (visited.has(vertex)) {
+            return vertexString;
+        }
+        visited.add(vertex);
+    }
+    const outgoing = new Set();
+    for (let arc of graph[1]) {
+        if (arc[0] === vertex) {
+            outgoing.add(arc);
+        }
+    }
+    if (!outgoing.size) {
+        return vertexString;
+    }
+    const children = Array.from(outgoing.values())
+        .map(arc => writeVertex(arc[1], arc[2], graph, visited))
+        .sort();
+    return `(${children.join(",")})${vertexString}`;
 }
