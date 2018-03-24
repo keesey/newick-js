@@ -43,6 +43,14 @@ class CharBuffer {
         return this.string.charAt(this.pos++);
     }
 }
+function compareVertices(a, b, graph) {
+    if (a === b) {
+        return 0;
+    }
+    const aStr = writeVertex(a, NaN, graph, new Set());
+    const bStr = writeVertex(b, NaN, graph, new Set());
+    return aStr < bStr ? -1 : aStr > bStr ? 1 : 0;
+}
 function findRoot(graph) {
     const candidates = new Set(graph[0]);
     graph[1].forEach(arc => candidates.delete(arc[1]));
@@ -173,7 +181,7 @@ function writeVertex(vertex, weight, graph, visited) {
         return vertexString;
     }
     const children = Array.from(outgoing.values())
-        .map(arc => writeVertex(arc[1], arc[2], graph, visited))
-        .sort();
+        .sort((a, b) => compareVertices(a[1], b[1], graph))
+        .map(arc => writeVertex(arc[1], arc[2], graph, visited));
     return `(${children.join(",")})${vertexString}`;
 }

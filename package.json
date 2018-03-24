@@ -1,5 +1,9 @@
 {
-	"author": "T. Michael Keesey <keesey@gmail.com>",
+	"author": {
+		"email": "keesey@gmail.com",
+		"name": "T. Michael Keesey",
+		"url": "http://tmkeesey.net"
+	},
 	"bugs": {
 		"url": "https://github.com/keesey/newick-js/issues"
 	},
@@ -32,5 +36,5 @@
 		"build": "tsc",
 		"test": "mocha --reporter spec"
 	},
-	"version": "1.0.0"
+	"version": "1.0.1"
 }
