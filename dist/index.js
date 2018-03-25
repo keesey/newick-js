@@ -18,7 +18,7 @@ function parse(s) {
 }
 exports.parse = parse;
 function write(graph) {
-    return `${writeVertex(findRoot(graph), NaN, graph, new Set(), graphToChildrenMap(graph))};`;
+    return new GraphWriter(graph).write();
 }
 exports.write = write;
 class CharBuffer {
@@ -43,24 +43,75 @@ class CharBuffer {
         return this.string.charAt(this.pos++);
     }
 }
-function compareVertices(a, b, childrenMap) {
-    if (a === b) {
-        return 0;
+class GraphWriter {
+    constructor(graph) {
+        this.graph = graph;
+        this.outgoing = new Map();
+        this.sortMap = new Map();
+        const rootCandidates = new Set(graph[0]);
+        for (let vertex of graph[0]) {
+            this.outgoing.set(vertex, new Set());
+        }
+        for (let arc of graph[1]) {
+            rootCandidates.delete(arc[1]);
+            this.outgoing.get(arc[0])
+                .add(arc.slice(1, 3));
+        }
+        if (rootCandidates.size !== 1) {
+            throw new Error("Cannot determine root.");
+        }
+        this.root = Array.from(rootCandidates)[0];
     }
-    const aSort = getVertexSortLabel(a, childrenMap);
-    const bSort = getVertexSortLabel(b, childrenMap);
-    return aSort < bSort ? -1 : aSort > bSort ? 1 : 0;
-}
-function findRoot(graph) {
-    const candidates = new Set(graph[0]);
-    graph[1].forEach(arc => candidates.delete(arc[1]));
-    if (candidates.size > 1) {
-        throw new Error("Cannot determine root.");
+    write() {
+        return `${this.writeVertex(this.root, new Set())};`;
     }
-    for (let member of candidates) {
-        return member;
+    compareVertices(a, b) {
+        if (a === b) {
+            return 0;
+        }
+        const aSort = this.getSortCached(a);
+        const bSort = this.getSortCached(b);
+        return aSort < bSort ? -1 : (aSort > bSort ? 1 : 0);
     }
-    throw new Error("No root element found.");
+    getSort(vertex) {
+        if (vertex.label) {
+            return vertex.label;
+        }
+        const children = Array
+            .from(this.outgoing.get(vertex))
+            .map(([vertex]) => this.getSortCached(vertex))
+            .sort()
+            .join(",");
+        return `(${children})`;
+    }
+    getSortCached(vertex) {
+        if (this.sortMap.has(vertex)) {
+            return this.sortMap.get(vertex);
+        }
+        const sort = this.getSort(vertex);
+        this.sortMap.set(vertex, sort);
+        return sort;
+    }
+    writeVertex(vertex, visited, weight = NaN) {
+        let vertexString = writeLabel(vertex.label);
+        if (!isNaN(weight)) {
+            vertexString += `:${weight}`;
+        }
+        if (vertex.label) {
+            if (visited.has(vertex)) {
+                return vertexString;
+            }
+            visited.add(vertex);
+        }
+        const outgoing = this.outgoing.get(vertex);
+        if (!outgoing.size) {
+            return vertexString;
+        }
+        const children = Array.from(outgoing)
+            .sort((a, b) => this.compareVertices(a[0], b[0]))
+            .map(([child, weight]) => this.writeVertex(child, visited, weight));
+        return `(${children.join(",")})${vertexString}`;
+    }
 }
 function findVertexWithLabel(label, vertices) {
     for (let vertex of vertices) {
@@ -69,27 +120,6 @@ function findVertexWithLabel(label, vertices) {
         }
     }
     return null;
-}
-function getVertexSortLabel(vertex, childrenMap) {
-    if (vertex.label) {
-        return vertex.label;
-    }
-    const children = Array
-        .from(childrenMap.get(vertex))
-        .map(child => getVertexSortLabel(child, childrenMap))
-        .sort()
-        .join(",");
-    return `(${children})`;
-}
-function graphToChildrenMap(graph) {
-    const children = new Map();
-    for (let vertex of graph[0]) {
-        children.set(vertex, new Set());
-    }
-    for (let arc of graph[1]) {
-        children.get(arc[0]).add(arc[1]);
-    }
-    return children;
 }
 function readVertex(buffer, graph) {
     let token;
@@ -121,8 +151,6 @@ function readVertex(buffer, graph) {
         buffer.back();
     }
     const vertex = readVertexLabel(buffer, graph[0]);
-    if (!children.length) {
-    }
     graph[0].add(vertex);
     while (children.length) {
         graph[1].add([
@@ -171,7 +199,7 @@ function readVertexLabel(buffer, vertices) {
     return findVertexWithLabel(label, vertices) || { label };
 }
 function readWeight(buffer) {
-    let s = '';
+    let s = "";
     while (!buffer.atEnd()) {
         const token = buffer.read();
         if (token === ")" || token === ",") {
@@ -193,31 +221,4 @@ function writeLabel(label) {
         return `'${label}'`;
     }
     return label;
-}
-function writeVertex(vertex, weight, graph, visited, childrenMap) {
-    const parts = new Array(1);
-    parts[0] = writeLabel(vertex.label);
-    if (!isNaN(weight)) {
-        parts.push(weight);
-    }
-    const vertexString = parts.join(":");
-    if (vertex.label) {
-        if (visited.has(vertex)) {
-            return vertexString;
-        }
-        visited.add(vertex);
-    }
-    const outgoing = new Set();
-    for (let arc of graph[1]) {
-        if (arc[0] === vertex) {
-            outgoing.add(arc);
-        }
-    }
-    if (!outgoing.size) {
-        return vertexString;
-    }
-    const children = Array.from(outgoing.values())
-        .sort((a, b) => compareVertices(a[1], b[1], childrenMap))
-        .map(arc => writeVertex(arc[1], arc[2], graph, visited, childrenMap));
-    return `(${children.join(",")})${vertexString}`;
 }
