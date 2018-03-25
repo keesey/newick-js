@@ -74,11 +74,12 @@ function getVertexSortLabel(vertex, childrenMap) {
     if (vertex.label) {
         return vertex.label;
     }
-    return " " + Array
+    const children = Array
         .from(childrenMap.get(vertex))
         .map(child => getVertexSortLabel(child, childrenMap))
         .sort()
-        .join(" ");
+        .join(",");
+    return `(${children})`;
 }
 function graphToChildrenMap(graph) {
     const children = new Map();
