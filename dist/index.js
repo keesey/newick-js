@@ -4,20 +4,33 @@ function parse(s) {
     if (typeof s !== "string") {
         throw new Error(`Not a string: ${s}`);
     }
-    s = s.trim();
     const minLength = /;$/.test(s) ? 2 : 1;
     if (s.length < minLength) {
         throw new Error(`Not long enough to be a Newick string: "${s}".`);
     }
     const graph = [new Set(), new Set()];
-    const root = readVertex(new CharBuffer(s), graph);
+    const buffer = new CharBuffer(s);
+    const root = readVertex(buffer, graph);
     return {
         graph,
         root,
+        rootWeight: readRootWeight(buffer),
     };
 }
 exports.parse = parse;
 function write(graph) {
+    if (!Array.isArray(graph)) {
+        throw new Error(`Not an array: ${String(graph) || "<empty>"}`);
+    }
+    if (graph.length < 2 || graph.slice(0, 2).some(element => !(element instanceof Set))) {
+        throw new Error(`Not a graph: [${graph.join(", ")}]`);
+    }
+    if (Array.from(graph[0]).some(vertex => typeof vertex !== "object")) {
+        throw new Error("Invalid vertex set.");
+    }
+    if (Array.from(graph[1]).some(arc => !Array.isArray(arc) || arc.length < 3 || typeof arc[0] !== "object" || typeof arc[1] !== "object" || typeof arc[2] !== "number")) {
+        throw new Error("Invalid arc set.");
+    }
     return new GraphWriter(graph).write();
 }
 exports.write = write;
@@ -26,6 +39,12 @@ class CharBuffer {
         this.string = string;
         this.pos = 0;
         this.length = this.string.length;
+    }
+    get rest() {
+        if (this.atEnd()) {
+            throw new Error("End of buffer reached.");
+        }
+        return this.string.substr(this.pos);
     }
     atEnd() {
         return this.pos >= this.length;
@@ -121,6 +140,21 @@ function findVertexWithLabel(label, vertices) {
     }
     return null;
 }
+function readRootWeight(buffer) {
+    if (!buffer.atEnd()) {
+        if (buffer.read() === ":") {
+            const weight = readWeight(buffer);
+            if (buffer.atEnd()) {
+                return weight;
+            }
+        }
+        else {
+            buffer.back();
+        }
+        throw new Error(`Extra content beyond end of Newick tree: "${buffer.rest}".`);
+    }
+    return NaN;
+}
 function readVertex(buffer, graph) {
     let token;
     do {
@@ -180,7 +214,7 @@ function readVertexLabel(buffer, vertices) {
                 buffer.back();
                 break;
             }
-            if (label.length !== 0 || !(/^\s$/.test(token))) {
+            if (label.length !== 0 || !(/\s/.test(token))) {
                 label += token;
             }
         }
@@ -189,10 +223,10 @@ function readVertexLabel(buffer, vertices) {
         return {};
     }
     label = label
-        .replace(/;$/, '')
-        .replace(/^\s+/, '')
-        .replace(/\s+$/, '')
-        .replace(/\s\s+/g, ' ');
+        .trim()
+        .replace(/;$/, "")
+        .replace(/\s+$/, "")
+        .replace(/\s/g, " ");
     if (label.length === 0) {
         return {};
     }

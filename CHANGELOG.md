@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] - 2017-03-25
+### Added
+- Parse results also return root node's weight.
+- Validation for `write()`, with tests.
+- Errors when Newick tree ends before string does.
+### Changed
+- Preserving extra spaces within vertex labels.
+- No longer trimming input to `parse()`. (Leaving that up to the user.)
+
 ## [1.0.4] - 2017-03-24
 ### Changed
 - Refactored and optimized `write()`.

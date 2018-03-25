@@ -3,6 +3,7 @@ export declare type Graph = [Set<Vertex>, Set<Arc>];
 export interface ParseResult {
     graph: Graph;
     root: Vertex;
+    rootWeight: number;
 }
 export interface Vertex {
     label?: string;
