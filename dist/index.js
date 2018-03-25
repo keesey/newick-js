@@ -18,7 +18,7 @@ function parse(s) {
 }
 exports.parse = parse;
 function write(graph) {
-    return `${writeVertex(findRoot(graph), NaN, graph, new Set())};`;
+    return `${writeVertex(findRoot(graph), NaN, graph, new Set(), graphToChildrenMap(graph))};`;
 }
 exports.write = write;
 class CharBuffer {
@@ -43,13 +43,13 @@ class CharBuffer {
         return this.string.charAt(this.pos++);
     }
 }
-function compareVertices(a, b, graph) {
+function compareVertices(a, b, childrenMap) {
     if (a === b) {
         return 0;
     }
-    const aStr = writeVertex(a, NaN, graph, new Set());
-    const bStr = writeVertex(b, NaN, graph, new Set());
-    return aStr < bStr ? -1 : aStr > bStr ? 1 : 0;
+    const aSort = getVertexSortLabel(a, childrenMap);
+    const bSort = getVertexSortLabel(b, childrenMap);
+    return aSort < bSort ? -1 : aSort > bSort ? 1 : 0;
 }
 function findRoot(graph) {
     const candidates = new Set(graph[0]);
@@ -69,6 +69,26 @@ function findVertexWithLabel(label, vertices) {
         }
     }
     return null;
+}
+function getVertexSortLabel(vertex, childrenMap) {
+    if (vertex.label) {
+        return vertex.label;
+    }
+    return " " + Array
+        .from(childrenMap.get(vertex))
+        .map(child => getVertexSortLabel(child, childrenMap))
+        .sort()
+        .join(" ");
+}
+function graphToChildrenMap(graph) {
+    const children = new Map();
+    for (let vertex of graph[0]) {
+        children.set(vertex, new Set());
+    }
+    for (let arc of graph[1]) {
+        children.get(arc[0]).add(arc[1]);
+    }
+    return children;
 }
 function readVertex(buffer, graph) {
     let token;
@@ -123,7 +143,10 @@ function readVertexLabel(buffer, vertices) {
             }
             quoted = !quoted;
         }
-        else if (!quoted) {
+        else if (quoted) {
+            label += token;
+        }
+        else {
             if (token === ")" || token === "," || token === ":" || token === "(") {
                 buffer.back();
                 break;
@@ -158,9 +181,21 @@ function readWeight(buffer) {
     }
     return parseFloat(s);
 }
-function writeVertex(vertex, weight, graph, visited) {
+function writeLabel(label) {
+    if (!label) {
+        return "";
+    }
+    if (/'/.test(label)) {
+        throw new Error("Vertex labels cannot contain apostrophes (').");
+    }
+    if (/[(),:]/.test(label)) {
+        return `'${label}'`;
+    }
+    return label;
+}
+function writeVertex(vertex, weight, graph, visited, childrenMap) {
     const parts = new Array(1);
-    parts[0] = vertex.label || "";
+    parts[0] = writeLabel(vertex.label);
     if (!isNaN(weight)) {
         parts.push(weight);
     }
@@ -181,7 +216,7 @@ function writeVertex(vertex, weight, graph, visited) {
         return vertexString;
     }
     const children = Array.from(outgoing.values())
-        .sort((a, b) => compareVertices(a[1], b[1], graph))
-        .map(arc => writeVertex(arc[1], arc[2], graph, visited));
+        .sort((a, b) => compareVertices(a[1], b[1], childrenMap))
+        .map(arc => writeVertex(arc[1], arc[2], graph, visited, childrenMap));
     return `(${children.join(",")})${vertexString}`;
 }
