@@ -40,12 +40,6 @@ class CharBuffer {
         this.pos = 0;
         this.length = this.string.length;
     }
-    get rest() {
-        if (this.atEnd()) {
-            throw new Error("End of buffer reached.");
-        }
-        return this.string.substr(this.pos);
-    }
     atEnd() {
         return this.pos >= this.length;
     }
@@ -56,10 +50,17 @@ class CharBuffer {
         this.pos--;
     }
     read() {
+        this.checkAtEnd();
+        return this.string.charAt(this.pos++);
+    }
+    rest() {
+        this.checkAtEnd();
+        return this.string.substr(this.pos);
+    }
+    checkAtEnd() {
         if (this.atEnd()) {
             throw new Error("End of buffer reached.");
         }
-        return this.string.charAt(this.pos++);
     }
 }
 class GraphWriter {
@@ -151,7 +152,7 @@ function readRootWeight(buffer) {
         else {
             buffer.back();
         }
-        throw new Error(`Extra content beyond end of Newick tree: "${buffer.rest}".`);
+        throw new Error(`Extra content beyond end of Newick tree: "${buffer.rest()}".`);
     }
     return NaN;
 }
