@@ -39,6 +39,7 @@ const testIncorrect = (string, message) => {
 const testNewick = ({
     expectedArcCount,
     expectedRootLabel,
+    expectedRootWeight,
     expectedVertexCount,
     expectedWritten,
     string,
@@ -82,6 +83,15 @@ const testNewick = ({
                 expect(result.root.label).to.equal(expectedRootLabel);
             });
         }
+        if (isNaN(expectedRootWeight)) {
+            it("should not have a root weight", () => {
+                expect(result.rootWeight).to.be.NaN;
+            });
+        } else {
+            it("should have the expected root weight", () => {
+                expect(result.rootWeight).to.equal(expectedRootWeight);
+            });
+        }
         it("should include the root in the vertices", () => {
             expect(result.graph[0].has(result.root)).to.be.true;
         });
@@ -114,6 +124,7 @@ const testNewick = ({
         testNewick({
             expectedArcCount,
             expectedRootLabel,
+            expectedRootWeight,
             expectedVertexCount,
             expectedWritten,
             string: string.substr(0, string.length - 1),
@@ -200,6 +211,7 @@ describe("The Newick string parser", () => {
         });
         testNewick({
             expectedVertexCount: 12,
+            expectedRootWeight: 0.1,
             expectedWritten: "(((((Chimp:0.19268,Human:0.11927):0.08386,Gorilla:0.17147):0.06124,Orang:0.33636):0.15057,Gibbon:0.36079):0.54939,Bovine:0.69395,Mouse:1.2146);",
             string: "(Bovine:0.69395,(Gibbon:0.36079,(Orang:0.33636,(Gorilla:0.17147,(Chimp:0.19268, Human:0.11927):0.08386):0.06124):0.15057):0.54939,Mouse:1.21460):0.10;",
         });
@@ -226,9 +238,10 @@ describe("The Newick string parser", () => {
     describe("when given the example from the `README`", () => {
         testNewick({
             expectedRootLabel: "Hominidae",
+            expectedRootWeight: 4.43,
             expectedVertexCount: 7,
             expectedWritten: "(((Homo:6.65,Pan:6.65):2.41,Gorilla:9.06)Homininae:6.7,Pongo:15.76)Hominidae;",
-            string: "(Pongo:15.76,(Gorilla:9.06,(Pan:6.65,Homo:6.65):2.41)Homininae:6.70)Hominidae;",
+            string: "(Pongo:15.76,(Gorilla:9.06,(Pan:6.65,Homo:6.65):2.41)Homininae:6.70)Hominidae:4.43;",
         });
     });
     describe("when given trees with with excessive whitespace", () => {
