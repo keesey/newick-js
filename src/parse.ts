@@ -69,6 +69,7 @@ function readVertexChildren(buffer: CharBuffer, vertices: Set<Vertex>, arcs: Set
 			token = buffer.read();
 			if (token === ":") {
 				weight = readWeight(buffer);
+				token = buffer.read();
             }
             children.push([vertex, weight]);
 			if (token === ")") {
@@ -111,7 +112,7 @@ function getVertexForLabel(label: string, vertices: Set<Vertex>): Vertex {
 	}
 	return findVertexWithLabel(label, vertices) || { label };
 }
-function readVertexLabel(buffer: CharBuffer, vertices: Set<Vertex>): string {
+function readVertexLabel(buffer: CharBuffer): string {
 	let label = "";
 	let quoted = false;
 	while (!buffer.atEnd()) {
@@ -134,7 +135,7 @@ function readVertexLabel(buffer: CharBuffer, vertices: Set<Vertex>): string {
 }
 function readVertexFromLabel(buffer: CharBuffer, vertices: Set<Vertex>): Vertex {
 	return getVertexForLabel(
-		normalizeVertexLabel(readVertexLabel(buffer, vertices)),
+		normalizeVertexLabel(readVertexLabel(buffer)),
 		vertices,
 	);
 }
