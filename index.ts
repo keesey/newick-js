@@ -186,12 +186,16 @@ function addVertexWithChildren(graph: Graph, vertex: Vertex, children: Vertex[],
 		]);
 	}
 }
-function readVertex(buffer: CharBuffer, graph: Graph): Vertex {
+function readFirstNonSpaceToken(buffer: CharBuffer): string {
 	let token: string;
 	do {
 		token = buffer.read();
 	}
 	while (/\s/.test(token));
+	return token;
+}
+function readVertex(buffer: CharBuffer, graph: Graph): Vertex {
+	let token = readFirstNonSpaceToken(buffer);
 	const children: Vertex[] = [];
 	const weights: number[] = [];
 	if (token === "(") {
