@@ -1,18 +1,16 @@
 "use strict";
-const expect = require("chai").expect;
+const { expect } = require("chai");
 const { parse, write } = require("../dist/index.js");
 const arcMatchesDescription = (arc, description) => {
-    if (arc[0].label !== description[0]) {
-        return false;
-    }
-    if (arc[1].label !== description[1]) {
-        return false;
-    }
-    if (isNaN(arc[2]) && !isNaN(description[2])) {
+    if (
+        arc[0].label !== description[0] ||
+        arc[1].label !== description[1] ||
+        (isNaN(arc[2]) && !isNaN(description[2]))
+    ) {
         return false;
     }
     return arc[2] === description[2];
-}
+};
 const expectSetsEqual = (a, b) => {
     if (!(a instanceof Set)) {
         throw new Error("First argument is not a set.");
@@ -28,7 +26,7 @@ const expectSetsEqual = (a, b) => {
             throw new Error("Sets are not identical.");
         }
     }
-}
+};
 const testIncorrect = (string, message) => {
     describe(`(${typeof string === "string" ? `"${string}"` : string})`, () => {
         it("should throw a certain error", () => {
@@ -65,10 +63,10 @@ const testNewick = ({
         it("should have a graph with arcs", () => {
             expect(result.graph[1]).to.be.a("Set");
         });
-        it(`should have a graph with ${expectedVertexCount} vert${expectedVertexCount == 1 ? "ex" : "ices"}`, () => {
+        it(`should have a graph with ${expectedVertexCount} vert${expectedVertexCount === 1 ? "ex" : "ices"}`, () => {
             expect(result.graph[0].size).to.equal(expectedVertexCount);
         });
-        it(`should have a graph with ${expectedArcCount} arc${expectedArcCount == 1 ? "" : "s"}`, () => {
+        it(`should have a graph with ${expectedArcCount} arc${expectedArcCount === 1 ? "" : "s"}`, () => {
             expect(result.graph[1].size).to.equal(expectedArcCount);
         });
         it("should have a root", () => {
@@ -101,8 +99,7 @@ const testNewick = ({
                 expectedVertices.add(result.root);
                 expectSetsEqual(result.graph[0], expectedVertices);
             });
-        }
-        else {
+        } else {
             it("should have all of the vertices from the arcs, and only those vertices", () => {
                 const expectedVertices = new Set();
                 for (let arc of result.graph[1]) {
@@ -133,11 +130,11 @@ const testNewick = ({
 };
 describe("The Newick string writer", () => {
     it("should reject `undefined`", () => {
-        expect(() => write(undefined)).to.throw("Not an array: undefined");
+        expect(() => write()).to.throw("Not an array: undefined");
     });
     it("should reject `null`", () => {
         expect(() => write(null)).to.throw("Not an array: null");
-    });;
+    });
     it("should reject an object that is not an array", () => {
         expect(() => write({})).to.throw("Not an array: [object Object]");
     });
@@ -151,7 +148,7 @@ describe("The Newick string writer", () => {
         expect(() => write([new Set([{}])])).to.throw("Not a graph: [[object Set]]");
     });
     it("should not reject an array with more than 2 elements", () => {
-        expect(write([new Set([{label: "A"}]), new Set(), null])).to.equal("A;")
+        expect(write([new Set([{label: "A"}]), new Set(), null])).to.equal("A;");
     });
     it("should reject a graph with multiple roots", () => {
         const rootA = {};
@@ -263,7 +260,7 @@ describe("The Newick string parser", () => {
             expectedArcCount: 6,
             expectedVertexCount: 6,
             string: "((A,B),(A,C));",
-        })
+        });
         testNewick({
             expectedArcCount: 6,
             expectedVertexCount: 6,
@@ -272,7 +269,8 @@ describe("The Newick string parser", () => {
         })
     });
     describe("when given non-string or strings that do not adhere to the Newick tree format", () => {
-        testIncorrect(undefined, "Not a string: undefined");
+        let undef;
+        testIncorrect(undef, "Not a string: undefined");
         testIncorrect(null, "Not a string: null");
         testIncorrect({}, "Not a string: [object Object]");
         testIncorrect("", "Not long enough to be a Newick string: \"\".");
