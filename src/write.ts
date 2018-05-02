@@ -22,7 +22,7 @@ function checkArcSet(graph: Graph): void {
 		throw new Error("Invalid arc set.");
 	}
 }
-export default function write(graph: Graph): string {
+export function write(graph: Graph): string {
 	checkArray(graph);
 	checkGraph(graph);
 	checkVertexSet(graph);

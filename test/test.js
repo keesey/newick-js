@@ -1,6 +1,6 @@
 "use strict";
 const { expect } = require("chai");
-const { parse, write } = require("../dist/index.js");
+const { parse, write } = require("../dist");
 const arcMatchesDescription = (arc, description) => {
     const matches = index => arc[index].label === description[index];
     if (

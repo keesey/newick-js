@@ -38,6 +38,13 @@ To import the functions in TypeScript:
 import { parse, write } from "newick-js";
 ```
 
+To import separately (minimizing file size for tree-shaking):
+
+```typescript
+import { parse } from "newick-js/dist/src/parse";
+import { write } from "newick-js/dist/src/write";
+```
+
 #### Interface
 
 (The type declarations are written in TypeScript.)

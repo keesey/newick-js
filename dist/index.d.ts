@@ -1,12 +1,5 @@
-export declare type Arc = [Vertex, Vertex, number];
-export declare type Graph = [Set<Vertex>, Set<Arc>];
-export interface ParseResult {
-    graph: Graph;
-    root: Vertex;
-    rootWeight: number;
-}
-export interface Vertex {
-    label?: string;
-}
-export declare function parse(s: string): ParseResult;
-export declare function write(graph: Graph): string;
+export * from "./src/Arc";
+export * from "./src/Graph";
+export * from "./src/Vertex";
+export * from "./src/parse";
+export * from "./src/write";
