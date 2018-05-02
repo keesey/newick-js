@@ -25,6 +25,12 @@ export function parse(s: string): ParseResult {
 		rootWeight: readRootWeight(buffer),
 	};
 }
+const END_TOKENS: Record<string, true> = {
+    ")": true,
+    ",": true,
+    ":": true,
+    "(": true,
+};
 function readRootWeight(buffer: CharBuffer): number {
 	if (!buffer.atEnd()) {
 		if (buffer.read() === ":") {
@@ -39,14 +45,10 @@ function readRootWeight(buffer: CharBuffer): number {
 	}
 	return NaN;
 }
-function addVertexWithChildren(vertices: Set<Vertex>, arcs: Set<Arc>, vertex: Vertex, children: Vertex[], weights: number[]): void {
-	vertices.add(vertex);
-	while (children.length) {
-		arcs.add([
-			vertex,
-			children.pop() as Vertex,
-			weights.pop() as number,
-		]);
+function addChildArcs(arcs: Set<Arc>, vertex: Vertex, children: Array<[Vertex, number]>): void {
+    let child: [Vertex, number] | undefined;
+	while (child = children.pop()) {
+		arcs.add([vertex, child[0], child[1]]);
 	}
 }
 function readFirstNonSpaceToken(buffer: CharBuffer): string {
@@ -57,20 +59,18 @@ function readFirstNonSpaceToken(buffer: CharBuffer): string {
 	while (/\s/.test(token));
 	return token;
 }
-function readVertex(buffer: CharBuffer, vertices: Set<Vertex>, arcs: Set<Arc>): Vertex {
-	let token = readFirstNonSpaceToken(buffer);
-	const children: Vertex[] = [];
-	const weights: number[] = [];
+function readVertexChildren(buffer: CharBuffer, vertices: Set<Vertex>, arcs: Set<Arc>): Array<[Vertex, number]> {
+    let token = readFirstNonSpaceToken(buffer);
+	const children = new Array<[Vertex, number]>();
 	if (token === "(") {
 		do {
-			children.push(readVertex(buffer, vertices, arcs));
+            const vertex = readVertex(buffer, vertices, arcs);
+            let weight = NaN;
 			token = buffer.read();
 			if (token === ":") {
-				weights.push(readWeight(buffer));
-				token = buffer.read();
-			} else {
-				weights.push(NaN);
-			}
+				weight = readWeight(buffer);
+            }
+            children.push([vertex, weight]);
 			if (token === ")") {
 				break;
 			}
@@ -81,9 +81,14 @@ function readVertex(buffer: CharBuffer, vertices: Set<Vertex>, arcs: Set<Arc>): 
 		while (true);
 	} else {
 		buffer.back();
-	}
+    }
+    return children;
+}
+function readVertex(buffer: CharBuffer, vertices: Set<Vertex>, arcs: Set<Arc>): Vertex {
+    const children = readVertexChildren(buffer, vertices, arcs);
 	const vertex = readVertexFromLabel(buffer, vertices);
-	addVertexWithChildren(vertices, arcs, vertex, children, weights);
+	vertices.add(vertex);
+	addChildArcs(arcs, vertex, children);
 	return vertex;
 }
 function normalizeVertexLabel(label: string): string {
@@ -112,20 +117,17 @@ function readVertexLabel(buffer: CharBuffer, vertices: Set<Vertex>): string {
 	while (!buffer.atEnd()) {
 		const token = buffer.read();
 		if (token === "'") {
-			if (!quoted && label.length > 0) {
+			if (!quoted && label.length) {
 				label += token;
 			}
 			quoted = !quoted;
 		} else if (quoted) {
 			label += token;
-		} else {
-			if (token === ")" || token === "," || token === ":" || token === "(") {
-				buffer.back();
-				break;
-			}
-			if (label.length !== 0 || !(/\s/.test(token))) {
-				label += token;
-			}
+		} else if (END_TOKENS[token]) {
+            buffer.back();
+            break;
+        } else if (label.length || !(/\s/.test(token))) {
+            label += token;
 		}
 	}
 	return label;
