@@ -148,16 +148,3 @@ function readWeight(buffer: CharBuffer): number {
 	}
 	return parseFloat(s);
 }
-function writeLabel(label: string | undefined): string
-{
-	if (!label) {
-		return "";
-	}
-	if (/'/.test(label)) {
-		throw new Error("Vertex labels cannot contain apostrophes (').");
-	}
-	if (/[(),:]/.test(label)) {
-		return `'${label}'`;
-	}
-	return label;
-}
