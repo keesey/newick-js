@@ -25,19 +25,31 @@ export function parse(s: string): ParseResult {
 		rootWeight: readRootWeight(buffer),
 	};
 }
-export function write(graph: Graph): string {
+function checkArray(graph: Graph): void {
 	if (!Array.isArray(graph)) {
 		throw new Error(`Not an array: ${String(graph) || "<empty>"}`);
 	}
+}
+function checkGraph(graph: Graph): void {
 	if (graph.length < 2 || graph.slice(0, 2).some(element => !(element instanceof Set))) {
 		throw new Error(`Not a graph: [${graph.join(", ")}]`);
 	}
+}
+function checkVertexSet(graph: Graph): void {
 	if (Array.from(graph[0]).some(vertex => typeof vertex !== "object")) {
 		throw new Error("Invalid vertex set.");
 	}
+}
+function checkArcSet(graph: Graph): void {
 	if (Array.from(graph[1]).some(arc => !Array.isArray(arc) || arc.length < 3 || typeof arc[0] !== "object" || typeof arc[1] !== "object" || typeof arc[2] !== "number")) {
 		throw new Error("Invalid arc set.");
 	}
+}
+export function write(graph: Graph): string {
+	checkArray(graph);
+	checkGraph(graph);
+	checkVertexSet(graph);
+	checkArcSet(graph);
 	return new GraphWriter(graph).write();
 }
 class CharBuffer {
@@ -126,6 +138,9 @@ class GraphWriter {
 			}
 			visited.add(vertex);
 		}
+		return this.writeWithOutgoing(vertex, vertexString, visited);
+	}
+	private writeWithOutgoing(vertex: Vertex, vertexString: string, visited: Set<Vertex>): string {
 		const outgoing = this.outgoing.get(vertex) as Set<[Vertex, number]>;
 		if (!outgoing.size) {
 			return vertexString;
@@ -161,6 +176,16 @@ function readRootWeight(buffer: CharBuffer): number {
 	}
 	return NaN;
 }
+function addVertexWithChildren(graph: Graph, vertex: Vertex, children: Vertex[], weights: number[]): void {
+	graph[0].add(vertex);
+	while (children.length) {
+		graph[1].add([
+			vertex,
+			children.pop() as Vertex,
+			weights.pop() as number,
+		]);
+	}
+}
 function readVertex(buffer: CharBuffer, graph: Graph): Vertex {
 	let token: string;
 	do {
@@ -182,7 +207,7 @@ function readVertex(buffer: CharBuffer, graph: Graph): Vertex {
 			if (token === ")") {
 				break;
 			}
-			if (token != ",") {
+			if (token !== ",") {
 				throw new Error(`Unexpected character "${token}" in Newick tree string at position ${buffer.pos - 1}.`);
 			}
 		}
@@ -190,16 +215,15 @@ function readVertex(buffer: CharBuffer, graph: Graph): Vertex {
 	} else {
 		buffer.back();
 	}
-	const vertex: Vertex = readVertexLabel(buffer, graph[0]);
-	graph[0].add(vertex);
-	while (children.length) {
-		graph[1].add([
-			vertex,
-			children.pop() as Vertex,
-			weights.pop() as number,
-		]);
-	}
+	const vertex = readVertexLabel(buffer, graph[0]);
+	addVertexWithChildren(graph, vertex, children, weights);
 	return vertex;
+}
+function normalizeVertexLabel(label: string): string {
+	return label
+		.replace(/;\s*$/, "")
+		.trim()
+		.replace(/\s+/g, " ");
 }
 function readVertexLabel(buffer: CharBuffer, vertices: Set<Vertex>): Vertex {
 	let label = "";
@@ -223,14 +247,7 @@ function readVertexLabel(buffer: CharBuffer, vertices: Set<Vertex>): Vertex {
 			}
 		}
 	}
-	if (label.length === 0) {
-		return {};
-	}
-	label = label
-		.trim()
-		.replace(/;$/, "")
-		.replace(/\s+$/, "")
-		.replace(/\s/g, " ");
+	label = normalizeVertexLabel(label);
 	if (label.length === 0) {
 		return {};
 	}
