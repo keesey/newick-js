@@ -266,7 +266,7 @@ describe("The Newick string parser", () => {
             expectedVertexCount: 6,
             expectedWritten: "(((A,B)C,D),C);",
             string: "((A,B)C,(C,D));",
-        })
+        });
     });
     describe("when given non-string or strings that do not adhere to the Newick tree format", () => {
         let undef;
