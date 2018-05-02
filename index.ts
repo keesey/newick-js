@@ -215,7 +215,7 @@ function readVertex(buffer: CharBuffer, graph: Graph): Vertex {
 	} else {
 		buffer.back();
 	}
-	const vertex = readVertexLabel(buffer, graph[0]);
+	const vertex = readVertexFromLabel(buffer, graph[0]);
 	addVertexWithChildren(graph, vertex, children, weights);
 	return vertex;
 }
@@ -225,7 +225,13 @@ function normalizeVertexLabel(label: string): string {
 		.trim()
 		.replace(/\s+/g, " ");
 }
-function readVertexLabel(buffer: CharBuffer, vertices: Set<Vertex>): Vertex {
+function getVertexForLabel(label: string, vertices: Set<Vertex>): Vertex {
+	if (label.length === 0) {
+		return {};
+	}
+	return findVertexWithLabel(label, vertices) || { label };
+}
+function readVertexLabel(buffer: CharBuffer, vertices: Set<Vertex>): string {
 	let label = "";
 	let quoted = false;
 	while (!buffer.atEnd()) {
@@ -247,11 +253,13 @@ function readVertexLabel(buffer: CharBuffer, vertices: Set<Vertex>): Vertex {
 			}
 		}
 	}
-	label = normalizeVertexLabel(label);
-	if (label.length === 0) {
-		return {};
-	}
-	return findVertexWithLabel(label, vertices) || { label };
+	return label;
+}
+function readVertexFromLabel(buffer: CharBuffer, vertices: Set<Vertex>): Vertex {
+	return getVertexForLabel(
+		normalizeVertexLabel(readVertexLabel(buffer, vertices)),
+		vertices,
+	);
 }
 function readWeight(buffer: CharBuffer): number {
 	let s = "";
