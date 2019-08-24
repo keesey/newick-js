@@ -33,8 +33,8 @@
 		"url": "git+https://github.com/keesey/newick-js.git"
 	},
 	"scripts": {
-		"build": "tsc",
+		"build": "tsc && cp src/*.d.ts dist/src",
 		"test": "tsc && mocha --reporter spec"
 	},
-	"version": "1.1.0"
+	"version": "1.1.1"
 }
