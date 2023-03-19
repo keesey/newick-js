@@ -53,5 +53,5 @@
         "test": "mocha -r ts-node/register \"./src/**/*.spec.ts\"",
         "version": "git add -A src"
     },
-    "version": "1.1.1"
+    "version": "1.1.2"
 }
