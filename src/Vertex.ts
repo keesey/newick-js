@@ -1,3 +1,3 @@
 export interface Vertex {
-	readonly label?: string;
+    readonly label?: string
 }

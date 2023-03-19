@@ -6,7 +6,7 @@ A [Node.js](https://nodejs.org) module that parses strings into graphs according
 
 This module minimally requires ECMAScript 2015 (ES6), since it uses `Set` objects.
 
-## Installation 
+## Installation
 
 ### npm
 
@@ -29,20 +29,20 @@ yarn add newick-js
 To import the functions in JavaScript:
 
 ```javascript
-const { parse, write } = require("newick-js");
+const { parse, write } = require("newick-js")
 ```
 
 To import the functions in TypeScript:
 
 ```typescript
-import { parse, write } from "newick-js";
+import { parse, write } from "newick-js"
 ```
 
 To import separately (minimizing file size for tree-shaking):
 
 ```typescript
-import { parse } from "newick-js/dist/src/parse";
-import { write } from "newick-js/dist/src/write";
+import { parse } from "newick-js/dist/src/parse"
+import { write } from "newick-js/dist/src/write"
 ```
 
 #### Interface
@@ -55,29 +55,31 @@ A **vertex** is a plain object with an optional `label` field.
 
 ```typescript
 interface Vertex {
-    label?: string;
+    label?: string
 }
 ```
 
 ##### Arcs
 
 An **arc** is an array which includes, in order:
+
 1. a head vertex (the parent),
 2. a tail vertex (the child), and
 3. a weight (a number, possibly `NaN`).
 
 ```typescript
-type Arc = [Vertex, Vertex, number];
+type Arc = [Vertex, Vertex, number]
 ```
 
 ##### Graphs
 
 A **graph** is an array which includes, in order:
+
 1. a set of vertices, and
 2. a set of arcs.
 
 ```typescript
-type Graph = [Set<Vertex>, Set<Arc>];
+type Graph = [Set<Vertex>, Set<Arc>]
 ```
 
 ##### Functions
@@ -85,18 +87,18 @@ type Graph = [Set<Vertex>, Set<Arc>];
 The `parse()` function takes a string and yields a **parse result**, including a graph, a root vertex, and a weight for the root vertex (possibly `NaN`).
 
 ```typescript
-declare function parse(s: string): ParseResult;
+declare function parse(s: string): ParseResult
 interface ParseResult {
-  graph: Graph;
-  root: Vertex;
-  rootWeight: number;
+    graph: Graph
+    root: Vertex
+    rootWeight: number
 }
-``` 
+```
 
 The `write()` method takes a graph and yields a Newick tree string.
 
 ```typescript
-declare function write(graph: Graph): string;
+declare function write(graph: Graph): string
 ```
 
 #### Example Usage
@@ -104,18 +106,19 @@ declare function write(graph: Graph): string;
 (JavaScript or TypeScript, after importing the functions)
 
 ```javascript
-const result = parse("(Pongo:15.76,(Gorilla:9.06,(Pan:6.65,Homo:6.65):2.41)Homininae:6.70)Hominidae:4.43;");
-const root = result.root;
-console.log(`Root: ${result.root.label}`);
-console.log(`Root Weight: ${result.rootWeight}`);
-const vertices = result.graph[0];
-console.log(`Number of Vertices: ${vertices.size}`);
-const arcs = result.graph[1];
-console.log(`Number of Arcs: ${arcs.size}`);
-console.log(write(result.graph));
+const result = parse("(Pongo:15.76,(Gorilla:9.06,(Pan:6.65,Homo:6.65):2.41)Homininae:6.70)Hominidae:4.43;")
+const root = result.root
+console.log(`Root: ${result.root.label}`)
+console.log(`Root Weight: ${result.rootWeight}`)
+const vertices = result.graph[0]
+console.log(`Number of Vertices: ${vertices.size}`)
+const arcs = result.graph[1]
+console.log(`Number of Arcs: ${arcs.size}`)
+console.log(write(result.graph))
 ```
 
 Output:
+
 ```sh
 > Root: Hominidae
 > Root Weight: 4.43
@@ -127,13 +130,15 @@ Output:
 See `test/test.js` for further examples.
 
 ### AMD
+
 ```javascript
-define(function(require, exports, module) {
-  var newick = require('newick-js');
-});
+define(function (require, exports, module) {
+    var newick = require("newick-js")
+})
 ```
 
 ## Testing
+
 ```sh
 yarn test
 ```
