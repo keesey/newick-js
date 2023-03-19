@@ -43,7 +43,7 @@
         "url": "git+https://github.com/keesey/newick-js.git"
     },
     "scripts": {
-        "build": "rm -rf dist && mkdir dist && cp src/*.d.ts dist && tsc",
+        "build": "rm -rf dist && mkdir dist && tsc",
         "format": "yarn lint --fix && prettier -w .",
         "lint": "eslint --ext .ts .",
         "postversion": "git push && git push --tags",

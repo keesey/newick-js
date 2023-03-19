@@ -17,7 +17,7 @@ export default class CharBuffer {
     }
     public rest() {
         this.checkAtEnd()
-        return this.string.substr(this.pos)
+        return this.string.slice(this.pos)
     }
     public pos = 0
     private readonly length: number

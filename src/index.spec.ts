@@ -41,7 +41,7 @@ const testNewick = ({
     source,
 }: TestArgs) => {
     if (!expectedArcCount) {
-        expectedArcCount = expectedVertexCount ?? 0 - 1
+        expectedArcCount = (expectedVertexCount ?? 0) - 1
     }
     if (!expectedWritten) {
         expectedWritten = source
@@ -120,7 +120,7 @@ const testNewick = ({
             expectedRootWeight,
             expectedVertexCount,
             expectedWritten,
-            source: source.substring(0, source.length - 1),
+            source: source.slice(0, -1),
         })
     }
 }
