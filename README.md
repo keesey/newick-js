@@ -41,8 +41,8 @@ import { parse, write } from "newick-js"
 To import separately (minimizing file size for tree-shaking):
 
 ```typescript
-import { parse } from "newick-js/dist/src/parse"
-import { write } from "newick-js/dist/src/write"
+import { parse } from "newick-js/dist/parse"
+import { write } from "newick-js/dist/write"
 ```
 
 #### Interface
@@ -123,10 +123,10 @@ Output:
 > Root Weight: 4.43
 > Number of Vertices: 7
 > Number of Arcs: 6
-> ((Homo:6.65,Pan:6.65):2.41,Gorilla:9.06)Homininae:6.7,(Pongo:15.76)Hominidae;
+> ((Homo:6.65,Pan:6.65):2.41,Gorilla:9.06)Homininae:6.7,(Pongo:15.76)Hominidae:4.43;
 ```
 
-See `test/test.js` for further examples.
+See `src/index.spec.ts` for further examples.
 
 ### AMD
 
