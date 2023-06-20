@@ -98,7 +98,7 @@ interface ParseResult {
 The `write()` method takes a graph and yields a Newick tree string.
 
 ```typescript
-declare function write(graph: Graph): string
+declare function write(graph: Graph, rootWeight?: number): string
 ```
 
 #### Example Usage
@@ -107,14 +107,13 @@ declare function write(graph: Graph): string
 
 ```javascript
 const result = parse("(Pongo:15.76,(Gorilla:9.06,(Pan:6.65,Homo:6.65):2.41)Homininae:6.70)Hominidae:4.43;")
-const root = result.root
 console.log(`Root: ${result.root.label}`)
 console.log(`Root Weight: ${result.rootWeight}`)
 const vertices = result.graph[0]
 console.log(`Number of Vertices: ${vertices.size}`)
 const arcs = result.graph[1]
 console.log(`Number of Arcs: ${arcs.size}`)
-console.log(write(result.graph))
+console.log(write(result.graph, result.rootWeight))
 ```
 
 Output:

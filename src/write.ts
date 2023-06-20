@@ -29,10 +29,10 @@ function checkArcSet(graph: Graph): void {
         throw new Error("Invalid arc set.")
     }
 }
-export function write(graph: Graph): string {
+export function write(graph: Graph, rootWeight = NaN): string {
     checkArray(graph)
     checkGraph(graph)
     checkVertexSet(graph)
     checkArcSet(graph)
-    return new GraphWriter(graph).write()
+    return new GraphWriter(graph, rootWeight).write()
 }

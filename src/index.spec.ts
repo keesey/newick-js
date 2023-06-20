@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { expect } from "chai"
-import { parse, ParseResult, write } from "."
+import { Arc, Graph, parse, ParseResult, Vertex, write } from "."
 const expectSetsEqual = (a: unknown, b: unknown) => {
     if (!(a instanceof Set)) {
         throw new Error("First argument is not a set.")
@@ -150,17 +150,17 @@ describe("The Newick string writer", () => {
         const rootA = {}
         const rootB = {}
         const child = {}
-        const vertices = new Set([rootA, rootB, child])
-        const arcs = new Set([
+        const vertices = new Set<Vertex>([rootA, rootB, child])
+        const arcs = new Set<Arc>([
             [rootA, child, NaN],
             [rootB, child, NaN],
         ])
-        expect(() => write([vertices, arcs] as any)).to.throw("Cannot determine root.")
+        expect(() => write([vertices, arcs])).to.throw("Cannot determine root.")
     })
     it("should reject a graph with 2 vertices and no arcs", () => {
-        const vertices = new Set([{}, {}])
-        const arcs = new Set()
-        expect(() => write([vertices, arcs] as any)).to.throw("Cannot determine root.")
+        const vertices = new Set<Vertex>([{}, {}])
+        const arcs = new Set<Arc>()
+        expect(() => write([vertices, arcs])).to.throw("Cannot determine root.")
     })
     it("should write a graph with 1 vertex and no arcs", () => {
         expect(write([new Set([{ label: "A" }]), new Set()])).to.equal("A;")
@@ -171,28 +171,49 @@ describe("The Newick string writer", () => {
         const c = { label: "C" }
         const d = { label: "D" }
         const e = { label: "E" }
-        const vertices = new Set([a, b, c, d, e])
-        const arcs = new Set([
+        const vertices = new Set<Vertex>([a, b, c, d, e])
+        const arcs = new Set<Arc>([
             [a, b, NaN],
             [a, c, NaN],
             [b, d, NaN],
             [b, e, NaN],
         ])
-        expect(write([vertices, arcs] as any)).to.equal("((D,E)B,C)A;")
+        expect(write([vertices, arcs])).to.equal("((D,E)B,C)A;")
     })
     it("should reject a cyclic graph with no root", () => {
         const a = {}
         const b = {}
         const c = {}
         const d = {}
-        const vertices = new Set([a, b, c, d])
-        const arcs = new Set([
+        const vertices: ReadonlySet<Vertex> = new Set([a, b, c, d])
+        const arcs: ReadonlySet<Arc> = new Set([
             [a, b, NaN],
             [a, c, NaN],
             [b, d, NaN],
             [b, a, NaN],
         ])
-        expect(() => write([vertices, arcs] as any)).to.throw("Cannot determine root.")
+        expect(() => write([vertices, arcs] as Graph)).to.throw("Cannot determine root.")
+    })
+    it("should output the root weight if it is finite", () => {
+        const a = { label: "A" }
+        const b = { label: "B" }
+        const vertices = new Set<Vertex>([a, b])
+        const arcs = new Set<Arc>([[a, b, 2]])
+        expect(write([vertices, arcs], 4)).to.equal("(B:2)A:4;")
+    })
+    it("should not output the root weight if it is NaN", () => {
+        const a = { label: "A" }
+        const b = { label: "B" }
+        const vertices = new Set<Vertex>([a, b])
+        const arcs = new Set<Arc>([[a, b, 2]])
+        expect(write([vertices, arcs], NaN)).to.equal("(B:2)A;")
+    })
+    it("should not output the root weight if it is infinite", () => {
+        const a = { label: "A" }
+        const b = { label: "B" }
+        const vertices = new Set<Vertex>([a, b])
+        const arcs = new Set<Arc>([[a, b, 2]])
+        expect(write([vertices, arcs], Infinity)).to.equal("(B:2)A;")
     })
 })
 describe("The Newick string parser", () => {

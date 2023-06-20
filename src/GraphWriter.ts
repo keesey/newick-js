@@ -1,7 +1,7 @@
 import { Graph } from "./Graph"
 import { Vertex } from "./Vertex"
 export default class GraphWriter {
-    constructor(private readonly graph: Graph) {
+    constructor(graph: Graph, public readonly rootWeight = NaN) {
         const rootCandidates = new Set<Vertex>(graph[0])
         for (const vertex of graph[0]) {
             this.outgoing.set(vertex, new Set<[Vertex, number]>())
@@ -16,7 +16,7 @@ export default class GraphWriter {
         this.root = Array.from(rootCandidates)[0]
     }
     public write(): string {
-        return `${this.writeVertex(this.root, new Set<Vertex>())};`
+        return `${this.writeVertex(this.root, new Set<Vertex>(), this.rootWeight)};`
     }
     private compareVertices(a: Vertex, b: Vertex): number {
         if (a === b) {
@@ -46,7 +46,7 @@ export default class GraphWriter {
     }
     private writeVertex(vertex: Vertex, visited: Set<Vertex>, weight = NaN): string {
         let vertexString = writeLabel(vertex.label)
-        if (!isNaN(weight)) {
+        if (isFinite(weight)) {
             vertexString += `:${weight}`
         }
         if (vertex.label) {

@@ -44,6 +44,7 @@
     },
     "scripts": {
         "build": "rm -rf dist && mkdir dist && tsc",
+        "example": "yarn build && ./example.js",
         "format": "yarn lint --fix && prettier -w .",
         "lint": "eslint --ext .ts .",
         "postversion": "git push && git push --tags",

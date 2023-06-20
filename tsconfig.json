@@ -20,5 +20,5 @@
         "typeRoots": ["./node_modules/@types", "./custom_typings"]
     },
     "exclude": ["./src/**/*.spec.ts"],
-    "include": ["./src/**/*.ts"]
+    "include": ["./src/**/*.ts", "src/index.spec.js"]
 }
