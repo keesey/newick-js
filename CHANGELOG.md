@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ### Security
 
+## [1.2.1] - 2023-06-20
+
+### Fixed
+
+-   Distribution files were missing.
+
 ## [1.2.0] - 2023-06-20
 
 ### Added
