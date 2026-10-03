@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { expect } from "chai"
+import { beforeEach, describe, expect, it } from "vitest"
 import { Arc, Graph, parse, ParseResult, Vertex, write } from "."
 const expectSetsEqual = (a: unknown, b: unknown) => {
     if (!(a instanceof Set)) {
@@ -20,7 +20,7 @@ const expectSetsEqual = (a: unknown, b: unknown) => {
 const testIncorrect = (s: unknown, message: string) => {
     describe(`(${typeof s === "string" ? `"${s}"` : s})`, () => {
         it("should throw a certain error", () => {
-            expect(() => parse(s as string)).to.throw(message)
+            expect(() => parse(s as string)).toThrow(message)
         })
     })
 }
@@ -50,46 +50,46 @@ const testNewick = ({
         let result: ParseResult
         beforeEach(() => (result = parse(source)))
         it("should have a graph object", () => {
-            expect(result.graph).to.be.an("array")
+            expect(Array.isArray(result.graph)).toBe(true)
         })
         it("should have a graph with 2 members", () => {
-            expect(result.graph).to.have.length(2)
+            expect(result.graph).toHaveLength(2)
         })
         it("should have a graph with vertices", () => {
-            expect(result.graph[0]).to.be.a("Set")
+            expect(result.graph[0]).toBeInstanceOf(Set)
         })
         it("should have a graph with arcs", () => {
-            expect(result.graph[1]).to.be.a("Set")
+            expect(result.graph[1]).toBeInstanceOf(Set)
         })
         it(`should have a graph with ${expectedVertexCount} vert${expectedVertexCount === 1 ? "ex" : "ices"}`, () => {
-            expect(result.graph[0].size).to.equal(expectedVertexCount)
+            expect(result.graph[0].size).toBe(expectedVertexCount)
         })
         it(`should have a graph with ${expectedArcCount} arc${expectedArcCount === 1 ? "" : "s"}`, () => {
-            expect(result.graph[1].size).to.equal(expectedArcCount)
+            expect(result.graph[1].size).toBe(expectedArcCount)
         })
         it("should have a root", () => {
-            expect(result.root).to.be.an("object")
+            expect(result.root).toBeTypeOf("object")
         })
         if (typeof expectedRootLabel === "undefined") {
             it("should have an unlabeled root", () => {
-                expect(result.root.label).to.equal(undefined)
+                expect(result.root.label).toBe(undefined)
             })
         } else {
             it("should have the expected root label", () => {
-                expect(result.root.label).to.equal(expectedRootLabel)
+                expect(result.root.label).toBe(expectedRootLabel)
             })
         }
         if (isNaN(expectedRootWeight ?? NaN)) {
             it("should not have a root weight", () => {
-                expect(Number.isNaN(result.rootWeight)).to.equal(true)
+                expect(Number.isNaN(result.rootWeight)).toBe(true)
             })
         } else {
             it("should have the expected root weight", () => {
-                expect(result.rootWeight).to.equal(expectedRootWeight)
+                expect(result.rootWeight).toBe(expectedRootWeight)
             })
         }
         it("should include the root in the vertices", () => {
-            expect(result.graph[0].has(result.root)).to.equal(true)
+            expect(result.graph[0].has(result.root)).toBe(true)
         })
         if (expectedVertexCount === 1) {
             it("should have a single vertex (the root)", () => {
@@ -107,10 +107,10 @@ const testNewick = ({
             })
         }
         it("should write as the expected string", () => {
-            expect(write(result.graph)).to.equal(expectedWritten)
+            expect(write(result.graph)).toBe(expectedWritten)
         })
         it("should rewrite as the expected string", () => {
-            expect(write(parse(write(result.graph)).graph)).to.equal(expectedWritten)
+            expect(write(parse(write(result.graph)).graph)).toBe(expectedWritten)
         })
     })
     if (/;$/.test(source)) {
@@ -126,25 +126,25 @@ const testNewick = ({
 }
 describe("The Newick string writer", () => {
     it("should reject `undefined`", () => {
-        expect(() => write(undefined as any)).to.throw("Not an array: undefined")
+        expect(() => write(undefined as any)).toThrow("Not an array: undefined")
     })
     it("should reject `null`", () => {
-        expect(() => write(null as any)).to.throw("Not an array: null")
+        expect(() => write(null as any)).toThrow("Not an array: null")
     })
     it("should reject an object that is not an array", () => {
-        expect(() => write({} as any)).to.throw("Not an array: [object Object]")
+        expect(() => write({} as any)).toThrow("Not an array: [object Object]")
     })
     it("should reject an empty array", () => {
-        expect(() => write([] as any)).to.throw("Not a graph: []")
+        expect(() => write([] as any)).toThrow("Not a graph: []")
     })
     it("should reject a graph with no vertices", () => {
-        expect(() => write([new Set(), new Set()])).to.throw("Cannot determine root.")
+        expect(() => write([new Set(), new Set()])).toThrow("Cannot determine root.")
     })
     it("should reject an array with 1 element", () => {
-        expect(() => write([new Set([{}])] as any)).to.throw("Not a graph: [[object Set]]")
+        expect(() => write([new Set([{}])] as any)).toThrow("Not a graph: [[object Set]]")
     })
     it("should not reject an array with more than 2 elements", () => {
-        expect(write([new Set([{ label: "A" }]), new Set(), null] as any)).to.equal("A;")
+        expect(write([new Set([{ label: "A" }]), new Set(), null] as any)).toBe("A;")
     })
     it("should reject a graph with multiple roots", () => {
         const rootA = {}
@@ -155,15 +155,15 @@ describe("The Newick string writer", () => {
             [rootA, child, NaN],
             [rootB, child, NaN],
         ])
-        expect(() => write([vertices, arcs])).to.throw("Cannot determine root.")
+        expect(() => write([vertices, arcs])).toThrow("Cannot determine root.")
     })
     it("should reject a graph with 2 vertices and no arcs", () => {
         const vertices = new Set<Vertex>([{}, {}])
         const arcs = new Set<Arc>()
-        expect(() => write([vertices, arcs])).to.throw("Cannot determine root.")
+        expect(() => write([vertices, arcs])).toThrow("Cannot determine root.")
     })
     it("should write a graph with 1 vertex and no arcs", () => {
-        expect(write([new Set([{ label: "A" }]), new Set()])).to.equal("A;")
+        expect(write([new Set([{ label: "A" }]), new Set()])).toBe("A;")
     })
     it("should write an acyclic, rooted, graph", () => {
         const a = { label: "A" }
@@ -178,7 +178,7 @@ describe("The Newick string writer", () => {
             [b, d, NaN],
             [b, e, NaN],
         ])
-        expect(write([vertices, arcs])).to.equal("((D,E)B,C)A;")
+        expect(write([vertices, arcs])).toBe("((D,E)B,C)A;")
     })
     it("should reject a cyclic graph with no root", () => {
         const a = {}
@@ -192,28 +192,28 @@ describe("The Newick string writer", () => {
             [b, d, NaN],
             [b, a, NaN],
         ])
-        expect(() => write([vertices, arcs] as Graph)).to.throw("Cannot determine root.")
+        expect(() => write([vertices, arcs] as Graph)).toThrow("Cannot determine root.")
     })
     it("should output the root weight if it is finite", () => {
         const a = { label: "A" }
         const b = { label: "B" }
         const vertices = new Set<Vertex>([a, b])
         const arcs = new Set<Arc>([[a, b, 2]])
-        expect(write([vertices, arcs], 4)).to.equal("(B:2)A:4;")
+        expect(write([vertices, arcs], 4)).toBe("(B:2)A:4;")
     })
     it("should not output the root weight if it is NaN", () => {
         const a = { label: "A" }
         const b = { label: "B" }
         const vertices = new Set<Vertex>([a, b])
         const arcs = new Set<Arc>([[a, b, 2]])
-        expect(write([vertices, arcs], NaN)).to.equal("(B:2)A;")
+        expect(write([vertices, arcs], NaN)).toBe("(B:2)A;")
     })
     it("should not output the root weight if it is infinite", () => {
         const a = { label: "A" }
         const b = { label: "B" }
         const vertices = new Set<Vertex>([a, b])
         const arcs = new Set<Arc>([[a, b, 2]])
-        expect(write([vertices, arcs], Infinity)).to.equal("(B:2)A;")
+        expect(write([vertices, arcs], Infinity)).toBe("(B:2)A;")
     })
 })
 describe("The Newick string parser", () => {
