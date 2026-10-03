@@ -72,7 +72,7 @@ const testNewick = ({
         })
         if (typeof expectedRootLabel === "undefined") {
             it("should have an unlabeled root", () => {
-                expect(result.root.label).to.be.undefined
+                expect(result.root.label).to.equal(undefined)
             })
         } else {
             it("should have the expected root label", () => {
@@ -81,7 +81,7 @@ const testNewick = ({
         }
         if (isNaN(expectedRootWeight ?? NaN)) {
             it("should not have a root weight", () => {
-                expect(result.rootWeight).to.be.NaN
+                expect(Number.isNaN(result.rootWeight)).to.equal(true)
             })
         } else {
             it("should have the expected root weight", () => {
@@ -89,7 +89,7 @@ const testNewick = ({
             })
         }
         it("should include the root in the vertices", () => {
-            expect(result.graph[0].has(result.root)).to.be.true
+            expect(result.graph[0].has(result.root)).to.equal(true)
         })
         if (expectedVertexCount === 1) {
             it("should have a single vertex (the root)", () => {

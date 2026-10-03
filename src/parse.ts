@@ -47,7 +47,6 @@ function readRootWeight(buffer: CharBuffer): number {
 }
 function addChildArcs(arcs: Set<Arc>, vertex: Vertex, children: Array<[Vertex, number]>): void {
     let child: [Vertex, number] | undefined
-    // eslint-disable-next-line no-cond-assign
     while ((child = children.pop())) {
         arcs.add([vertex, child[0], child[1]])
     }
