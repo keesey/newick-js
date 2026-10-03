@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ### Security
 
+## [1.2.3] - 2026-10-02
+
+### Security
+
+-   Upgraded dependencies (`braces`, `micromatch`).
+
 ## [1.2.2] - 2024-02-04
 
 ### Security
