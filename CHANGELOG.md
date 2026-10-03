@@ -18,6 +18,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ### Security
 
+## [1.2.4] - 2026-10-02
+
+### Changed
+
+-   Upgraded `eslint`.
+-   Switched unit tests from `chai` to `vitest`.
+
+### Security
+
+-   Upgraded dependencies (`flatted`, `eslint` dependencies).
+
 ## [1.2.3] - 2026-10-02
 
 ### Security
